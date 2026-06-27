@@ -1,0 +1,49 @@
+---
+title: "Proyecto final"
+format: html
+editor: visual
+author: Loren Clavel Nolasco Hernández
+---
+
+# Proyecto final
+
+## 1. Datos
+
+Los datos que se analizarán vienen del dataset precargado en R `swiss`, corresponden a los datos sobre fertilidad e indicadores socioeconómicos en Suiza, una medida estandarizada de estos factores para cada una de las 47 provincias francófonas de Suiza alrededor de 1888.
+
+## 2. Paquetes a utilizar
+
+Cargamos los paquetes necesarios para el análisis:
+
+```{r}
+library(dplyr)
+library(ggplot2)
+library(tidyr)
+library(forcats)
+```
+
+## 3. Carga de los datos
+
+```{r}
+suiza <- as_tibble(swiss, rownames = "Provincias")
+```
+
+## 4. Exploración de los datos
+
+Previo al análisis, observaremos la estructura de nuestros datos.
+
+```{r}
+suiza
+```
+
+```{r}
+dim(suiza)
+```
+
+```{r}
+names(suiza)
+```
+
+```{r}
+glimpse(suiza)
+```
