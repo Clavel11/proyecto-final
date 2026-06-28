@@ -9,7 +9,7 @@ author: Loren Clavel Nolasco Hernández
 
 ## 1. Datos
 
-Los datos que se analizarán vienen del dataset precargado en R `swiss`, corresponden a los datos sobre fertilidad e indicadores socioeconómicos en Suiza, una medida estandarizada de estos factores para cada una de las 47 provincias francófonas de Suiza alrededor de 1888.
+Los datos que se analizarán vienen del dataset precargado en R `swiss`, corresponden a los datos sobre fertilidad e indicadores socioeconómicos en Suiza, una medida estandarizada de estos factores para cada una de las 47 provincias de habla francesa de Suiza alrededor de 1888.
 
 ## 2. Paquetes a utilizar
 
@@ -30,19 +30,33 @@ suiza <- as_tibble(swiss, rownames = "Provincias")
 
 ## 4. Exploración de los datos
 
-Previo al análisis, observaremos la estructura de nuestros datos.
+Previo al análisis, observaremos la estructura de nuestros datos. Cada fila represetna una de las 47 provincias de habla francesa de la época de 1888.
 
 ```{r}
 suiza
 ```
 
+El dateset está compuesto por 47 observaciones y 7 columnas, todas expresadas en porcentajes. Todas las variables excepto la de `Fertility` nos dan proporciones de la población.
+
 ```{r}
 dim(suiza)
 ```
 
+Para este análisis utilizaremos la variable `Fertility` como nuestra medida princial para tratar de entender los cambios demográficos.
+
 ```{r}
 names(suiza)
 ```
+
+## Limpieza 
+
+Al realizar la exploración de valores faltantes mediane la función `colSums(is.na())`, se pbservo que el conjunto de datos no presenta ningún valor faltante en sus variables. Por lo tanto, no es necesario aplicar filtros, permitiendo trabajar con las 47 observaciones completas.
+
+```{r}
+colSums(is.na(suiza))
+```
+
+En cuanto al tipo de datos de cada columna, la variable `Provincias` es de tipo character, mientras que las variables de `Fertility`, `Agriculture`, `Catholic`, `Infant.Mortality`, `Examination` y `Education` son del tipo `numeric`.
 
 ```{r}
 glimpse(suiza)

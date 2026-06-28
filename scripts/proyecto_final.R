@@ -10,3 +10,8 @@ suiza <- as_tibble(swiss, rownames = "Provincias")
 dim(suiza)
 
 names(suiza)
+
+colSums(is.na(suiza))
+
+glimpse(suiza)
+
