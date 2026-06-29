@@ -48,16 +48,26 @@ Para este análisis utilizaremos la variable `Fertility` como nuestra medida pri
 names(suiza)
 ```
 
-## Limpieza 
+La siguiente información sobre la naturaleza de las columnas la podemos encontrar en la [documentación](https://stat.ethz.ch/R-manual/R-devel/library/datasets/html/swiss.html "Swiss Fertility and Socioeconomic Indicators (1888) Data") del set de datos.
 
-Al realizar la exploración de valores faltantes mediane la función `colSums(is.na())`, se pbservo que el conjunto de datos no presenta ningún valor faltante en sus variables. Por lo tanto, no es necesario aplicar filtros, permitiendo trabajar con las 47 observaciones completas.
+## 5. Limpieza
+
+Al realizar la exploración de valores faltantes mediane la función `colSums(is.na())`, se observó que el conjunto de datos no presenta ningún valor faltante en sus variables. Por lo tanto, no es necesario aplicar filtros, permitiendo trabajar con las 47 observaciones completas.
 
 ```{r}
 colSums(is.na(suiza))
 ```
 
-En cuanto al tipo de datos de cada columna, la variable `Provincias` es de tipo character, mientras que las variables de `Fertility`, `Agriculture`, `Catholic`, `Infant.Mortality`, `Examination` y `Education` son del tipo `numeric`.
+En cuanto al tipo de datos de cada columna, la variable `Provincias` es de tipo `character`, mientras que las variables de `Fertility`, `Agriculture`, `Catholic`, `Infant.Mortality`, `Examination` y `Education` son del tipo `numeric`, lo cual es consistente ya que representan proporciones y porcntajes de la población de cada provincia.
 
 ```{r}
 glimpse(suiza)
 ```
+
+## 6. Preguntas de investigación
+
+Las preguntas de interés que se pretenden responder son las siguientes:
+
+1.  ¿Cómo se relaciona la actividad agrícola con los niveles de fertilidad de las provincias, y qué papel juega la mortalidad infantil en este escenario?
+2.  ¿Cómo afecta el nivel de eduación a la fertilidad cuando dividimos a las provincias entre "Mayormente católicas" y "Mayormente Protestantes"?
+3.  ¿Las provincias con mayor fertilidad tienen peores resultados en los exámentes militares, y se relaciona esto con la mortalidad infantil?
