@@ -9,7 +9,7 @@ author: Loren Clavel Nolasco Hernández
 
 ## 1. Datos
 
-Los datos que se analizarán vienen del dataset precargado en R `swiss`, corresponden a los datos sobre fertilidad e indicadores socioeconómicos en Suiza, una medida estandarizada de estos factores para cada una de las 47 provincias de habla francesa de Suiza alrededor de 1888.
+Los datos que se analizarán vienen del set de datos precargado en R `swiss`, corresponden a los datos sobre fertilidad e indicadores socioeconómicos en Suiza, una medida estandarizada de estos factores para cada una de las 47 provincias de habla francesa de Suiza alrededor de 1888.
 
 ## 2. Paquetes a utilizar
 
@@ -30,13 +30,25 @@ suiza <- as_tibble(swiss, rownames = "Provincias")
 
 ## 4. Exploración de los datos
 
-Previo al análisis, observaremos la estructura de nuestros datos. Cada fila represetna una de las 47 provincias de habla francesa de la época de 1888.
+Previo al análisis, observaremos la estructura de nuestros datos. Cada fila represetna una de las 47 provincias de habla francesa de la época de 1888. La siguiente información sobre la naturaleza de las columnas la podemos encontrar en la [documentación](https://stat.ethz.ch/R-manual/R-devel/library/datasets/html/swiss.html "Swiss Fertility and Socioeconomic Indicators (1888) Data") del set de datos:
+
+- `Fertility`: $I_g$, índice de Fertilidad Marital Legítima.
+
+- `Agriculture`: Porcentaje de hombres involucrados en la agricultura como ocupación.
+
+- `Examination`: Porcentaje de reclutas que obtienen la calificación más alta en el examen del ejército.
+
+- `Education`: Porcentaje de educación más allá de la escuela primaria para los reclutas.
+
+- `Catholic`: Porcentaje "católico" en contraposición a "protestante".
+
+- `Infant.Mortality`: Nacidos vivos que viven menos de 1 año.
 
 ```{r}
 suiza
 ```
 
-El dateset está compuesto por 47 observaciones y 7 columnas, todas expresadas en porcentajes. Todas las variables excepto la de `Fertility` nos dan proporciones de la población.
+El set de datos está compuesto por 47 observaciones y 7 columnas, todas expresadas en porcentajes. Todas las variables excepto la de `Fertility` nos dan proporciones de la población.
 
 ```{r}
 dim(suiza)
@@ -48,8 +60,6 @@ Para este análisis utilizaremos la variable `Fertility` como nuestra medida pri
 names(suiza)
 ```
 
-La siguiente información sobre la naturaleza de las columnas la podemos encontrar en la [documentación](https://stat.ethz.ch/R-manual/R-devel/library/datasets/html/swiss.html "Swiss Fertility and Socioeconomic Indicators (1888) Data") del set de datos.
-
 ## 5. Limpieza
 
 Al realizar la exploración de valores faltantes mediane la función `colSums(is.na())`, se observó que el conjunto de datos no presenta ningún valor faltante en sus variables. Por lo tanto, no es necesario aplicar filtros, permitiendo trabajar con las 47 observaciones completas.
@@ -58,7 +68,7 @@ Al realizar la exploración de valores faltantes mediane la función `colSums(is
 colSums(is.na(suiza))
 ```
 
-En cuanto al tipo de datos de cada columna, la variable `Provincias` es de tipo `character`, mientras que las variables de `Fertility`, `Agriculture`, `Catholic`, `Infant.Mortality`, `Examination` y `Education` son del tipo `numeric`, lo cual es consistente ya que representan proporciones y porcntajes de la población de cada provincia.
+En cuanto al tipo de datos de cada columna, la variable `Provincias` es de tipo `character`, mientras que las variables de `Fertility`, `Agriculture`, `Catholic`, `Infant.Mortality`, `Examination` y `Education` son del tipo `numeric`, lo cual es consistente, ya que representan proporciones y porcntajes de la población de cada provincia.
 
 ```{r}
 glimpse(suiza)
@@ -70,4 +80,55 @@ Las preguntas de interés que se pretenden responder son las siguientes:
 
 1.  ¿Cómo se relaciona la actividad agrícola con los niveles de fertilidad de las provincias, y qué papel juega la mortalidad infantil en este escenario?
 2.  ¿Cómo afecta el nivel de eduación a la fertilidad cuando dividimos a las provincias entre "Mayormente católicas" y "Mayormente Protestantes"?
-3.  ¿Las provincias con mayor fertilidad tienen peores resultados en los exámentes militares, y se relaciona esto con la mortalidad infantil?
+3.  ¿Existe una relación ente los niveles de fertilidad y la tasa de mortalidad infantil de las provincias?
+
+```{r}
+grafica_1 <- ggplot(suiza, aes(x = Agriculture, y = Fertility, color = Infant.Mortality)) +
+  geom_point(size = 3, alpha = 0.8) +
+  scale_color_viridis_c(option = "mako", name = "Mortalidad Infantil\n(%)") +
+  labs(
+    title = "Relación entre Agricultura y Fertilidad en Suiza (1888)",
+    subtitle = "Análisis tridimensional considerando la tasa de mortalidad infantil",
+    x = "Hombres dedicados a la agricultura (%)",
+    y = "Índice de fertilidad marital (Ig)",
+    caption = "Fuente: Dataset swiss, R de habla francesa"
+  ) +
+  theme_minimal()
+
+grafica_1
+```
+
+```{r}
+suiza_religion <- suiza %>%
+  mutate(Religion_Dominante = if_else(Catholic > 50, "Católica", "Protestante"))
+
+grafica_2 <- ggplot(suiza_religion, aes(x = Education, y = Fertility, color = Religion_Dominante)) +
+  geom_point(size = 3, alpha = 0.8) +
+  scale_color_manual(values = c("Católica" = "#E41A1C", "Protestante" = "#377EB8"), name = "Religión Dominante") +
+  labs(
+    title = "Efecto de la Educación en la Fertilidad según la Religión (Suiza, 1888)",
+    subtitle = "Comparativa entre provincias mayormente católicas y protestantes",
+    x = "Educación más allá de la primaria (%)",
+    y = "Índice de fertilidad marital (Ig)",
+    caption = "Fuente: Dataset swiss, R de habla francesa"
+  ) +
+  theme_minimal()
+
+grafica_2
+```
+
+```{r}
+grafica_3 <- ggplot(suiza, aes(x = Infant.Mortality, y = Fertility)) +
+  geom_point(size = 3, color = "#2C3E50", alpha = 0.8) +
+  geom_smooth(method = "lm", color = "#E74C3C", se = FALSE) +
+  labs(
+    title = "Relación entre Fertilidad y Mortalidad Infantil (Suiza, 1888)",
+    subtitle = "Análisis bidimensional de indicadores demográficos",
+    x = "Tasa de mortalidad infantil (%)",
+    y = "Índice de fertilidad marital (Ig)",
+    caption = "Fuente: Dataset swiss, R de habla francesa"
+  ) +
+  theme_minimal()
+
+grafica_3
+```
