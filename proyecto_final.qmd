@@ -1,6 +1,8 @@
 ---
 title: "Proyecto final"
 format: html
+bibliography: references.bib
+csl: https://raw.githubusercontent.com/citation-style-language/styles/master/apa.csl
 editor: visual
 author: Loren Clavel Nolasco Hernández
 ---
@@ -30,9 +32,15 @@ suiza <- as_tibble(swiss, rownames = "Provincias")
 
 ## 4. Exploración de los datos
 
-Previo al análisis, observaremos la estructura de nuestros datos. Cada fila represetna una de las 47 provincias de habla francesa de la época de 1888. La siguiente información sobre la naturaleza de las columnas la podemos encontrar en la [documentación](https://stat.ethz.ch/R-manual/R-devel/library/datasets/html/swiss.html "Swiss Fertility and Socioeconomic Indicators (1888) Data") del set de datos:
+Previo al análisis, observaremos la estructura de nuestros datos. El set de datos está compuesto por 47 observaciones y 7 columnas.
 
-- `Fertility`: $I_g$, índice de Fertilidad Marital Legítima.
+```{r}
+dim(suiza)
+```
+
+Cada fila representa una de las 47 provincias de habla francesa de la época de 1888. La siguiente información sobre la naturaleza de las columnas la podemos encontrar en la [documentación](https://stat.ethz.ch/R-manual/R-devel/library/datasets/html/swiss.html "Swiss Fertility and Socioeconomic Indicators (1888) Data") del set de datos:
+
+- `Fertility`: $I_g$, índice de Fertilidad Marital Legítima el cual mide qué tan cerca se acerca una población a la fertilidad de los huterias, una secta anabaptista del medio oeste superior de Estados Unidos y el sur de Canadá que practicaba el matrimonio universal y la ausencia de control de la natalidad a principios del siglo XX [@wetherell2001].
 
 - `Agriculture`: Porcentaje de hombres involucrados en la agricultura como ocupación.
 
@@ -46,12 +54,6 @@ Previo al análisis, observaremos la estructura de nuestros datos. Cada fila rep
 
 ```{r}
 suiza
-```
-
-El set de datos está compuesto por 47 observaciones y 7 columnas, todas expresadas en porcentajes. Todas las variables excepto la de `Fertility` nos dan proporciones de la población.
-
-```{r}
-dim(suiza)
 ```
 
 Para este análisis utilizaremos la variable `Fertility` como nuestra medida princial para tratar de entender los cambios demográficos.
@@ -68,7 +70,7 @@ Al realizar la exploración de valores faltantes mediane la función `colSums(is
 colSums(is.na(suiza))
 ```
 
-En cuanto al tipo de datos de cada columna, la variable `Provincias` es de tipo `character`, mientras que las variables de `Fertility`, `Agriculture`, `Catholic`, `Infant.Mortality`, `Examination` y `Education` son del tipo `numeric`, lo cual es consistente, ya que representan proporciones y porcntajes de la población de cada provincia.
+En cuanto al tipo de datos de cada columna, la variable `Provincias` es de tipo `character`, mientras que las variables de `Fertility`, `Agriculture`, `Catholic`, `Infant.Mortality`, `Examination` y `Education` son del tipo `numeric`, lo cual es consistente, ya que representan proporciones y porcentajes de la población de cada provincia.
 
 ```{r}
 glimpse(suiza)
@@ -81,6 +83,18 @@ Las preguntas de interés que se pretenden responder son las siguientes:
 1.  ¿Cómo se relaciona la actividad agrícola con los niveles de fertilidad de las provincias, y qué papel juega la mortalidad infantil en este escenario?
 2.  ¿Cómo afecta el nivel de eduación a la fertilidad cuando dividimos a las provincias entre "Mayormente católicas" y "Mayormente Protestantes"?
 3.  ¿Existe una relación ente los niveles de fertilidad y la tasa de mortalidad infantil de las provincias?
+
+### a) Relación entre agricultura y fertilidad
+
+Para responder a la primer pregunta, primero filtramos y seleccionamos las variables de interés de nuestro set de datos para observar su estructura inicial.
+
+```{r}
+tabla_pregunta1 <- suiza %>%
+  select(Agriculture, Fertility, Infant.Mortality) %>%
+  head(10)
+
+tabla_pregunta1
+```
 
 ```{r}
 grafica_1 <- ggplot(suiza, aes(x = Agriculture, y = Fertility, color = Infant.Mortality)) +
