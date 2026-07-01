@@ -1,4 +1,4 @@
-# Análisis Demográfico y Socioeconómico: Suiza (1888) 🇨🇭📊
+# Análisis Demográfico y Socioeconómico: Suiza (1888)
 
 ¡Bienvenido/a a este proyecto de análisis de datos! En este repositorio se presenta un estudio detallado sobre los factores socioeconómicos y demográficos que influyeron en el índice de fertilidad de 47 provincias de habla francesa en la Suiza de finales del siglo XIX (1888). 
 
