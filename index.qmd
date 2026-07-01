@@ -7,6 +7,8 @@ bibliography: references.bib
 csl: https://raw.githubusercontent.com/citation-style-language/styles/master/apa.csl
 ---
 
+# Análisis demográfico y socioeconómico en Suiza (1888)
+
 ## 1. Datos
 
 Los datos que se analizarán vienen del set de datos precargado en R `swiss`, corresponden a los datos sobre fertilidad e indicadores socioeconómicos en Suiza, una medida estandarizada de estos factores para cada una de las 47 provincias de habla francesa de Suiza alrededor de 1888.
