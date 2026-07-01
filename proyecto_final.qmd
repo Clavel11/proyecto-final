@@ -1,10 +1,10 @@
 ---
 title: "Proyecto final"
+author: "Loren Clavel Nolasco Hernández"
+editor: visual
 format: html
 bibliography: references.bib
 csl: https://raw.githubusercontent.com/citation-style-language/styles/master/apa.csl
-editor: visual
-author: Loren Clavel Nolasco Hernández
 ---
 
 # Proyecto final
@@ -52,8 +52,12 @@ Cada fila representa una de las 47 provincias de habla francesa de la época de 
 
 - `Infant.Mortality`: Nacidos vivos que viven menos de 1 año.
 
+La siguiente tabla nos muestra una visualización de las primeras 10 provincias registradas:
+
 ```{r}
-suiza
+suiza %>% 
+  head(10) %>% 
+  rmarkdown::paged_table()
 ```
 
 Para este análisis utilizaremos la variable `Fertility` como nuestra medida princial para tratar de entender los cambios demográficos.
@@ -80,58 +84,101 @@ glimpse(suiza)
 
 Las preguntas de interés que se pretenden responder son las siguientes:
 
-1.  ¿Cómo se relaciona la actividad agrícola con los niveles de fertilidad de las provincias, y qué papel juega la mortalidad infantil en este escenario?
+1.  ¿Cómo se relaciona la actividad agrícola con los niveles de fertilidad de las provincias de Suiza?
 2.  ¿Cómo afecta el nivel de eduación a la fertilidad cuando dividimos a las provincias entre "Mayormente católicas" y "Mayormente Protestantes"?
 3.  ¿Existe una relación ente los niveles de fertilidad y la tasa de mortalidad infantil de las provincias?
+
+En lo siguiente se estarán respontiendo las preguntas planteadas.
 
 ### a) Relación entre agricultura y fertilidad
 
 Para responder a la primer pregunta, primero filtramos y seleccionamos las variables de interés de nuestro set de datos para observar su estructura inicial.
 
 ```{r}
-tabla_pregunta1 <- suiza %>%
-  select(Agriculture, Fertility, Infant.Mortality) %>%
+tabla_preparacion_1 <- suiza %>%
+  select(Agriculture, Fertility) %>%
   head(10)
 
-tabla_pregunta1
+tabla_preparacion_1
 ```
 
+A continuación, generamos una gráfica de dispersión bidimensional junto con su línea de tendencia para analizar el comportamiento de ambas variables:
+
 ```{r}
-grafica_1 <- ggplot(suiza, aes(x = Agriculture, y = Fertility, color = Infant.Mortality)) +
-  geom_point(size = 3, alpha = 0.8) +
-  scale_color_viridis_c(option = "mako", name = "Mortalidad Infantil\n(%)") +
+#| message: false
+#| echo: false
+
+grafica_1 <- ggplot(suiza, aes(x = Agriculture, y = Fertility)) +
+  geom_point(size = 3, color = "#2C3E50", alpha = 0.8) +
+  geom_smooth(method = "lm", color = "#E74C3C", se = FALSE) +
   labs(
     title = "Relación entre Agricultura y Fertilidad en Suiza (1888)",
-    subtitle = "Análisis tridimensional considerando la tasa de mortalidad infantil",
+    subtitle = "Análisis bidimensional de factores económicos y demográficos",
     x = "Hombres dedicados a la agricultura (%)",
-    y = "Índice de fertilidad marital (Ig)",
-    caption = "Fuente: Dataset swiss, R de habla francesa"
-  ) +
+    y = "Índice de fertilidad marital (Ig)") +
   theme_minimal()
 
 grafica_1
+
+ggsave("figures/relacion-agricultura-fertilidad.png", plot = grafica_1, width = 8, height = 5)
 ```
 
-```{r}
-suiza_religion <- suiza %>%
-  mutate(Religion_Dominante = if_else(Catholic > 50, "Católica", "Protestante"))
+La gráfica nos muestra una relación positiva entre ambas variables. La línea de tendencia ascendente demuestra que a mayor porcenaje de hombres dedicados a la agricultura, el índice de fertilidad marital tiende a ser más elevado. Entonces, el tipo de trabajo en la zona influye en cuántos hijos se tienen.
 
-grafica_2 <- ggplot(suiza_religion, aes(x = Education, y = Fertility, color = Religion_Dominante)) +
+### b) Efecto de la fertilidad según la educación y la filiación religiosa
+
+Para preparar los datos creamos la variable `Religión_Dominante` para clasificar las provincias en si son mayormente católicas (porcentaje mayor al 50%) o protestantes, seleccionaos las variables de interés y observamos las primeras filas de la tabla resultante:
+
+```{r}
+tabla_preparacion_2 <- suiza %>%
+  mutate(Religion_Dominante = if_else(Catholic > 50, "Católica", "Protestante")) %>%
+  select(Education, Fertility, Religion_Dominante) %>%
+  head(10)
+
+tabla_preparacion_2
+```
+
+A continuación, generamos la gráfica de dispersión utilizando colores diferentes para constrastar el comportamiento demográfico de ambos grupos religiosos:
+
+```{r}
+#| echo: false
+
+grafica_2 <- ggplot(suiza %>% mutate(Religion_Dominante = if_else(Catholic > 50, "Católica", "Protestante")), 
+                    aes(x = Education, y = Fertility, color = Religion_Dominante)) +
   geom_point(size = 3, alpha = 0.8) +
   scale_color_manual(values = c("Católica" = "#E41A1C", "Protestante" = "#377EB8"), name = "Religión Dominante") +
   labs(
     title = "Efecto de la Educación en la Fertilidad según la Religión (Suiza, 1888)",
     subtitle = "Comparativa entre provincias mayormente católicas y protestantes",
     x = "Educación más allá de la primaria (%)",
-    y = "Índice de fertilidad marital (Ig)",
-    caption = "Fuente: Dataset swiss, R de habla francesa"
-  ) +
+    y = "Índice de fertilidad marital (Ig)") +
   theme_minimal()
 
 grafica_2
+
+ggsave("figures/relacion-educacion-fertilidad-religion.png", plot = grafica_2, width = 8, height = 5)
 ```
 
+En la gráfica se observa que a menor porcentaje de educación más allá de la primaria, el índice de fertilidad marital aumenta de forma drástica. Además, las provinvias mayormente católicas se concentran fuertemente en el extremo de baja educación y fertilidad máxima, por el contrario, las provincias protestantes muestran niveles de fertildad menores incluso en escenarios de baja educación.
+
+### c) Relación entre la mortalidad infantil y la fertildad
+
+Para preparar los datos seleccionamos únicamene las variables demográficas de interés, `Fertility` e `Infant.Mortality` y visualizamos las primeras filas del subconjunto de datos para verificar su comportamiento inicial:
+
 ```{r}
+tabla_preparacion_3 <- suiza %>%
+  select(Infant.Mortality, Fertility) %>%
+  head(10)
+
+tabla_preparacion_3
+```
+
+A continuación, generamos una gráfica de dispersión bidimensional junto con su línea de tendencia lineal para evaluar la dirección y fuerza de la relación entre ambas variables:
+
+```{r}
+#| message: false
+#| echo: false
+
 grafica_3 <- ggplot(suiza, aes(x = Infant.Mortality, y = Fertility)) +
   geom_point(size = 3, color = "#2C3E50", alpha = 0.8) +
   geom_smooth(method = "lm", color = "#E74C3C", se = FALSE) +
@@ -139,10 +186,12 @@ grafica_3 <- ggplot(suiza, aes(x = Infant.Mortality, y = Fertility)) +
     title = "Relación entre Fertilidad y Mortalidad Infantil (Suiza, 1888)",
     subtitle = "Análisis bidimensional de indicadores demográficos",
     x = "Tasa de mortalidad infantil (%)",
-    y = "Índice de fertilidad marital (Ig)",
-    caption = "Fuente: Dataset swiss, R de habla francesa"
-  ) +
+    y = "Índice de fertilidad marital (Ig)") +
   theme_minimal()
 
 grafica_3
+
+ggsave("figures/relacion-mortInf-fertilidad.png", plot = grafica_3, width = 8, height = 5)
 ```
+
+Se puede observar que a medida que aumenta la fertilidad en las provincias, la mortalidad de los infantes durante su primer año de vida también se eleva, esto nos dice que una alta concentración de nacimientos en la época coexistía con entornos de mayor vulnerabilidad y menores probabilidades de supervivencia para los recién nacidos.
